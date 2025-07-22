@@ -58,6 +58,10 @@ export async function signIn(params:SignInParams) {
         }
 
         await setSessionCookie(idToken);
+        return{
+            success: true,
+            message: `User created successfully! Please sign in instead.`,
+        }
     }catch(e:any){
         console.log(e.message);
         return{
@@ -68,7 +72,7 @@ export async function signIn(params:SignInParams) {
 }
 
 
-export async function setSessionCookie(idToked:string){
+export async function setSessionCookie(idToken:string){
     const cookieStore = await cookies();
     const sessionCookie = await auth.createSessionCookie(idToken, {
         expiresIn: ONE_WEEK * 1000
@@ -80,8 +84,43 @@ export async function setSessionCookie(idToked:string){
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         path: '/',
-        sameSite: 'lax'
-
+        sameSite:"lax",
     })
 }
 
+export async function getCurrentUser(): Promise<User | null>{
+    const cookieStore = await cookies();
+
+    const sessionCookie = cookieStore.get('session')?.value;
+    console.log('Session Cookie:', sessionCookie);
+
+    if(!sessionCookie) {
+        return null;
+    }
+
+    try{
+        const decodedClaims = await auth.verifySessionCookie(sessionCookie, true);
+        const userRecord = await db
+            .collection('users')
+            .doc(decodedClaims.uid)
+            .get();
+
+        if(!userRecord.exists) {
+            return null;
+        }
+
+        return{
+            ...userRecord.data(),
+            id:userRecord.id,
+        } as User;
+    }catch(e:any){
+        console.log(e);
+        return null;
+    }
+}
+
+export async function isAuthenticated() {
+    const user = await getCurrentUser();
+
+    return !!user;
+}

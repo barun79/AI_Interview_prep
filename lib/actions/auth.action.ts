@@ -27,7 +27,7 @@ export async function signUp(params:SignUpParams) {
             message: `User created successfully! Please sign in.`
         }
 
-    }catch(e:any){
+    }catch(e){
         console.error('error creating a user', e);
 
         if (e.code === 'auth/email-already-exists') {
@@ -62,7 +62,7 @@ export async function signIn(params:SignInParams) {
             success: true,
             message: `User created successfully! Please sign in instead.`,
         }
-    }catch(e:any){
+    }catch(e){
         console.log(e.message);
         return{
             success: false,
@@ -113,7 +113,7 @@ export async function getCurrentUser(): Promise<User | null>{
             ...userRecord.data(),
             id:userRecord.id,
         } as User;
-    }catch(e:any){
+    }catch(e){
         console.log(e);
         return null;
     }

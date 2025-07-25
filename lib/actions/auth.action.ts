@@ -27,10 +27,10 @@ export async function signUp(params:SignUpParams) {
             message: `User created successfully! Please sign in.`
         }
 
-    }catch(e){
-        console.error('error creating a user', e);
+    }catch(error){
+        console.error('error creating a user', error);
 
-        if (e.code === 'auth/email-already-exists') {
+        if (error.code === 'auth/email-already-exists') {
             return{
                 success: false,
                 message: `This email is already in use!`,
@@ -63,7 +63,7 @@ export async function signIn(params:SignInParams) {
             message: `User created successfully! Please sign in instead.`,
         }
     }catch(e){
-        console.log(e.message);
+        console.log(e);
         return{
             success: false,
             message: `Failed to log into an account!`,
